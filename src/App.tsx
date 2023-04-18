@@ -1,26 +1,5 @@
+import { MouseEvent, RefObject, useRef, useState } from 'react';
 import './App.css'
-
-export default function App() {
-  const m = [
-    [1, 1, 2, 1],
-    [3, 2, 1, 1],
-    [2, 5, 6, 8],
-    [4, 2, 2, 1],
-    [1, 1, 2, 7],
-  ];
-  const rows = m.length;
-  const cols = m[0].length;
-  const fields = m.flatMap(row => row.map(col => <Field exp={col}/>));
-
-  return (
-    <div className="App">
-      <h1>2248</h1>
-      <div className="Fields" style={{gridTemplateColumns: 'auto '.repeat(cols)}}>
-        {fields}
-      </div>
-    </div>
-  )
-}
 
 const colors = [
   // https://coolors.co/palette/ffadad-ffd6a5-fdffb6-caffbf-9bf6ff-a0c4ff-bdb2ff-ffc6ff-fffffc
@@ -32,7 +11,64 @@ const colors = [
 ];
 const color = colors[2];
 
-const Field = ({ exp = 1}) => {
-  const text = 2**exp;
-  return <button className="Field" style={{backgroundColor: '#'+color[exp-1]}}>{text}</button>;
+export default function App() {
+  type line = { x1: number, y1: number, x2: number, y2: number; };
+  const [lines, setLines] = useState<line[]>([]);
+  const addLine = (l: line) => setLines([...lines, l]);
+  const line = useRef<SVGLineElement>(null);
+
+  const m = [
+    [1, 1, 2, 1],
+    [3, 2, 1, 1],
+    [2, 5, 6, 8],
+    [4, 2, 2, 1],
+    [1, 1, 2, 7],
+  ];
+  const rows = m.length;
+  const cols = m[0].length;
+  const fields = m.flatMap((row, irow) => row.map((col, icol) => <Field x={icol} y={irow} n={col} line={line} />));
+
+
+  return (
+    <div className="App">
+      <h1>2248</h1>
+      <div className="Fields" style={{gridTemplateColumns: 'auto '.repeat(cols)}}>
+        {fields}
+      </div>
+      <svg className="lines" width="100vw" height="100vh">
+        {lines.map(o => <line {...o} />)}
+        <line ref={line} id="line" />
+      </svg>
+    </div>
+  )
+}
+
+const Field = (o : { x: number, y: number, n: number, line: RefObject<SVGLineElement> }) => {
+  const text = 2**o.n;
+  const down = (e: MouseEvent) => {
+    console.log('down:', text);
+  };
+  const enter = (e: MouseEvent) => {
+    console.log('enter:', text);
+  };
+  const move = (e: MouseEvent) => {
+    // console.log('move:', e.clientX);
+    const l = document.querySelector<SVGLineElement>('#line');
+    if (!l) return;
+    // l.x1.baseVal.value = e.clientX - 100;
+    l.y1.baseVal.value = e.clientY - 100;
+    l.x2.baseVal.value = e.clientX;
+    l.y2.baseVal.value = e.clientY;
+    const l2 = o.line.current;
+    if (!l2) return;
+    l2.x1.baseVal.value = e.clientX - 100;
+  };
+  const leave = (e: MouseEvent) => {
+    console.log('leave:', text);
+  };
+  const up = (e: MouseEvent) => {
+    console.log('up:', text);
+  };
+  return <button className="Field" style={{backgroundColor: '#'+color[o.n-1]}}
+    onMouseDown={down} onMouseEnter={enter} onMouseMove={move} onMouseLeave={leave} onMouseUp={up} > {text} </button>;
 };

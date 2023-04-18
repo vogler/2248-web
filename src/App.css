@@ -26,7 +26,7 @@
   font-size: 2em;
   font-weight: bold;
   padding: 0em;
-  margin: 4px;
+  margin: 10px;
   /* will-change: filter; */
   /* transition: filter 300ms; */
 }
@@ -43,4 +43,14 @@
   border-color: #4375c6aa;
   filter: drop-shadow(0 0 1em #4375c6aa);
   animation: shake 0.3s linear 2;
+}
+
+.lines {
+  position: absolute;
+  z-index: -1;
+  top: 0; left: 0;
+  stroke-width: 1.5em;
+  stroke: red;
+  stroke-linecap: round;
+  stroke-opacity: 80%;
 }
