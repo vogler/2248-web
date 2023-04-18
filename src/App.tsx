@@ -1,4 +1,5 @@
 import { Select } from '@mantine/core';
+import { useLocalStorage } from '@mantine/hooks';
 import { MouseEvent, useState } from 'react';
 import './App.css'
 
@@ -17,7 +18,7 @@ export default function App() {
   // sound
   const waveforms = ['none', 'sine', 'square', 'triangle', 'sawtooth'] as const;
   type waveform = typeof waveforms[number];
-  const [waveform, setWaveform] = useState<waveform>('sine');
+  const [waveform, setWaveform] = useLocalStorage<waveform>({ key: 'waveform', defaultValue: 'sine' });
 
   // matrix of initial field values
   const m = [
