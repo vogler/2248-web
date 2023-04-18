@@ -1,3 +1,4 @@
+import { Select } from '@mantine/core';
 import { MouseEvent, useState } from 'react';
 import './App.css'
 
@@ -12,6 +13,12 @@ const colors = [
 const color = (n: number) => '#' + colors[2][n-1];
 
 export default function App() {
+  // config
+  // sound
+  const waveforms = ['none', 'sine', 'square', 'triangle', 'sawtooth'] as const;
+  type waveform = typeof waveforms[number];
+  const [waveform, setWaveform] = useState<waveform>('sine');
+
   // matrix of initial field values
   const m = [
     [1, 1, 2, 1],
@@ -46,10 +53,11 @@ export default function App() {
 
   // https://marcgg.com/blog/2016/11/01/javascript-audio/
   const playSound = (n: number) => {
+    if (waveform == 'none') return;
     const ctx = new AudioContext();
     const o = ctx.createOscillator();
     const g = ctx.createGain();
-    o.type = 'sine'; // sine, square, triangle, sawtooth
+    o.type = waveform;
     o.frequency.value = 110*n;
     o.connect(g);
     g.connect(ctx.destination);
@@ -98,6 +106,14 @@ export default function App() {
   return (
     <div className="App">
       <h1>2248</h1>
+      <div className="config">
+        <Select
+          label="Sound"
+          data={waveforms}
+          value={waveform}
+          onChange={v => setWaveform(v as typeof waveforms[number])}
+        />
+      </div>
       <div className="Fields" style={{gridTemplateColumns: 'auto '.repeat(cols)}}>
         {fields}
       </div>
