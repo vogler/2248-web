@@ -1,7 +1,7 @@
 import { Group, NumberInput, Select } from '@mantine/core';
 import { useLocalStorage } from '@mantine/hooks';
-import { IconColorFilter, IconVolume } from '@tabler/icons-react';
-import { MouseEvent, useState } from 'react';
+import { IconColorFilter, IconVolume } from '@tabler/icons-react'; // https://tabler-icons-react.vercel.app/
+import { MouseEvent, useMemo, useState } from 'react';
 import { ColorSchemeToggle } from './Mantine';
 import './App.css'
 
@@ -28,16 +28,20 @@ export default function App() {
   type waveform = typeof waveforms[number];
   const [waveform, setWaveform] = useLocalStorage<waveform>({ key: 'waveform', defaultValue: 'triangle' });
 
+  const min = 1;
+  const max = 9;
+  const rand = () => min + Math.floor(Math.random() * max);
   // matrix of initial field values
-  const m = [
+  const md = [
     [1, 1, 2, 10],
     [3, 2, 1, 1],
     [4, 5, 6, 7],
     [4, 2, 2, 8],
     [1, 1, 2, 9],
   ];
-  const [rows, setRows] = useState(m.length);
-  const [cols, setCols] = useState(m[0].length);
+  const [rows, setRows] = useState(5);
+  const [cols, setCols] = useState(5);
+  const m = useMemo(() => Array(rows).fill(Array(cols).fill(1)).map(row => row.map(rand)), [rows, cols]);
 
   // state and lines between fields when drawing
   type field = { row: number, col: number, n: number };
