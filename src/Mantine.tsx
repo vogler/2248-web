@@ -1,11 +1,12 @@
 import { useMantineColorScheme, ActionIcon, Group, ColorScheme, ColorSchemeProvider, MantineProvider } from '@mantine/core';
-import { useLocalStorage } from '@mantine/hooks';
+import { useColorScheme, useLocalStorage } from '@mantine/hooks';
 import { IconSun, IconMoonStars } from '@tabler/icons-react';
 
 export const Mantine = (p: { children: React.ReactNode; }) => {
+  // https://mantine.dev/guides/dark-theme/
   const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
     key: 'mantine-color-scheme',
-    defaultValue: 'light',
+    defaultValue: useColorScheme(),
     getInitialValueInEffect: true,
   });
 
