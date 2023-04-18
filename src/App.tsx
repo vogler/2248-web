@@ -16,9 +16,9 @@ export default function App() {
   const m = [
     [1, 1, 2, 1],
     [3, 2, 1, 1],
-    [4, 5, 6, 8],
-    [4, 2, 2, 1],
-    [1, 1, 2, 7],
+    [4, 5, 6, 7],
+    [4, 2, 2, 8],
+    [1, 1, 2, 9],
   ];
   const rows = m.length;
   const cols = m[0].length;
@@ -44,6 +44,19 @@ export default function App() {
     Math.abs(a.row - b.row) <= 1 &&
     Math.abs(a.col - b.col) <= 1;
 
+  // https://marcgg.com/blog/2016/11/01/javascript-audio/
+  const playSound = (n: number) => {
+    const ctx = new AudioContext();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = 'sine'; // sine, square, triangle, sawtooth
+    o.frequency.value = 110*n;
+    o.connect(g);
+    g.connect(ctx.destination);
+    o.start(0);
+    g.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.4);
+  };
+
   const Field = (o: field) => {
     const text = 2 ** o.n;
     const down = (e: MouseEvent) => {
@@ -61,6 +74,7 @@ export default function App() {
         addLine({ ...line, x2: x, y2: y });
         console.log(line);
         setLine({ ...line, x1: x, y1: y, stroke: color(o.n) });
+        playSound(o.n);
       }
     };
     const move = (e: MouseEvent) => {
