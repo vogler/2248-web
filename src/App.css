@@ -1,12 +1,19 @@
 #root {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
+  /* padding: 2rem; */
   text-align: center;
 }
 
+body {
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
 .App {
-  border: solid #242424;
+  border: solid;
   border-radius: 1em;
 }
 
@@ -20,6 +27,7 @@
 .Field {
   width: 4em;
   height: 4em;
+  border: 1px solid transparent;
   border-radius: 20px;
   text-align: center;
   color: #666;

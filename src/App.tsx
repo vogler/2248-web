@@ -1,6 +1,8 @@
 import { Select } from '@mantine/core';
 import { useLocalStorage } from '@mantine/hooks';
+import { IconVolume } from '@tabler/icons-react';
 import { MouseEvent, useState } from 'react';
+import { ColorSchemeToggle } from './Mantine';
 import './App.css'
 
 const colors = [
@@ -108,12 +110,14 @@ export default function App() {
     <div className="App">
       <h1>2248</h1>
       <div className="config">
+        <IconVolume />
         <Select
-          label="Sound"
+          // label="Sound"
           data={waveforms}
           value={waveform}
           onChange={v => setWaveform(v as typeof waveforms[number])}
         />
+        <ColorSchemeToggle />
       </div>
       <div className="Fields" style={{gridTemplateColumns: 'auto '.repeat(cols)}}>
         {fields}
