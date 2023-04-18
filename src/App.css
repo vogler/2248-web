@@ -15,10 +15,16 @@ body {
 .App {
   border: solid;
   border-radius: 1em;
+  user-select: none;
+  /* padding: 10px; */
+}
+
+.config {
+  margin: 20px;
 }
 
 .Fields {
-  padding: 2em;
+  margin: 10px;
   display: grid;
   grid-template-columns: auto auto;
   /* gap: 10px; */

@@ -1,4 +1,4 @@
-import { Select } from '@mantine/core';
+import { Group, NumberInput, Select } from '@mantine/core';
 import { useLocalStorage } from '@mantine/hooks';
 import { IconVolume } from '@tabler/icons-react';
 import { MouseEvent, useState } from 'react';
@@ -20,7 +20,7 @@ export default function App() {
   // sound
   const waveforms = ['none', 'sine', 'square', 'triangle', 'sawtooth'] as const;
   type waveform = typeof waveforms[number];
-  const [waveform, setWaveform] = useLocalStorage<waveform>({ key: 'waveform', defaultValue: 'sine' });
+  const [waveform, setWaveform] = useLocalStorage<waveform>({ key: 'waveform', defaultValue: 'triangle' });
 
   // matrix of initial field values
   const m = [
@@ -30,8 +30,8 @@ export default function App() {
     [4, 2, 2, 8],
     [1, 1, 2, 9],
   ];
-  const rows = m.length;
-  const cols = m[0].length;
+  const [rows, setRows] = useState(m.length);
+  const [cols, setCols] = useState(m[0].length);
 
   // state and lines between fields when drawing
   type field = { row: number, col: number, n: number };
@@ -109,16 +109,21 @@ export default function App() {
   return (
     <div className="App">
       <h1>2248</h1>
-      <div className="config">
-        <IconVolume />
+      <Group position="center" className="config">
+        <NumberInput w="4rem" min={2} value={cols} onChange={v => v && setCols(v)} />
+        x
+        <NumberInput w="4rem" min={2} value={rows} onChange={v => v && setRows(v)} />
+        {/* <IconVolume /> */}
         <Select
-          // label="Sound"
+          // default ~ 14rem
+          w="8.5rem"
+          icon={<IconVolume />}
           data={waveforms}
           value={waveform}
           onChange={v => setWaveform(v as typeof waveforms[number])}
-        />
+          />
         <ColorSchemeToggle />
-      </div>
+      </Group>
       <div className="Fields" style={{gridTemplateColumns: 'auto '.repeat(cols)}}>
         {fields}
       </div>
