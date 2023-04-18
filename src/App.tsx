@@ -30,7 +30,7 @@ export default function App() {
 
   // matrix of initial field values
   const m = [
-    [1, 1, 2, 1],
+    [1, 1, 2, 10],
     [3, 2, 1, 1],
     [4, 5, 6, 7],
     [4, 2, 2, 8],
@@ -114,7 +114,7 @@ export default function App() {
 
   return (
     <div className="App">
-      <h1>2248</h1>
+      {/* <h1>2248</h1> */}
       <Group position="center" className="config">
         <NumberInput w="4rem" min={2} value={cols} onChange={v => v && setCols(v)} />
         x

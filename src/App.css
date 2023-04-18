@@ -16,6 +16,7 @@ body {
   border: solid;
   border-radius: 1em;
   user-select: none;
+  max-height: 100vh;
   /* padding: 10px; */
 }
 
@@ -26,18 +27,17 @@ body {
 .Fields {
   margin: 10px;
   display: grid;
-  grid-template-columns: auto auto;
   /* gap: 10px; */
 }
 
 .Field {
-  width: 4em;
-  height: 4em;
+  width: 7rem;
+  height: 7rem;
   border: 1px solid transparent;
   border-radius: 20px;
   text-align: center;
   color: #666;
-  font-size: 2em;
+  font-size: 3rem;
   font-weight: bold;
   padding: 0em;
   margin: 10px;
