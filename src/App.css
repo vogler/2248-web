@@ -41,8 +41,8 @@
 
 .Field:hover {
   border-color: #4375c6aa;
-  filter: drop-shadow(0 0 1em #4375c6aa);
-  animation: shake 0.3s linear 2;
+  /* filter: drop-shadow(0 0 1em #4375c6aa); */
+  /* animation: shake 0.3s linear 2; */
 }
 
 .lines {
