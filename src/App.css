@@ -63,7 +63,7 @@ body {
   position: absolute;
   z-index: -1;
   top: 0; left: 0;
-  stroke-width: 1.5em;
+  stroke-width: 1.8em;
   stroke: red;
   stroke-linecap: round;
   stroke-opacity: 80%;

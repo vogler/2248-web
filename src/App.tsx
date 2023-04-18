@@ -1,6 +1,6 @@
 import { Group, NumberInput, Select } from '@mantine/core';
 import { useLocalStorage } from '@mantine/hooks';
-import { IconVolume } from '@tabler/icons-react';
+import { IconColorFilter, IconVolume } from '@tabler/icons-react';
 import { MouseEvent, useState } from 'react';
 import { ColorSchemeToggle } from './Mantine';
 import './App.css'
@@ -13,10 +13,12 @@ const colors = [
   // https://coolors.co/palette/eae4e9-fff1e6-fde2e4-fad2e1-e2ece9-bee1e6-f0efeb-dfe7fd-cddafd
   ["eae4e9", "fff1e6", "fde2e4", "fad2e1", "e2ece9", "bee1e6", "f0efeb", "dfe7fd", "cddafd"],
 ];
-const color = (n: number) => '#' + colors[2][n-1];
 
 export default function App() {
   // config
+  // color palette
+  const [colortheme, setColortheme] = useLocalStorage({ key: 'colortheme', defaultValue: 2 });
+  const color = (n: number) => '#' + colors[colortheme % colors.length][n - 1];
   // sound
   const waveforms = ['none', 'sine', 'square', 'triangle', 'sawtooth'] as const;
   type waveform = typeof waveforms[number];
@@ -113,7 +115,9 @@ export default function App() {
         <NumberInput w="4rem" min={2} value={cols} onChange={v => v && setCols(v)} />
         x
         <NumberInput w="4rem" min={2} value={rows} onChange={v => v && setRows(v)} />
-        {/* <IconVolume /> */}
+
+        <NumberInput w="5rem" min={1} max={colors.length} value={colortheme} onChange={v => v && setColortheme(v)} icon={<IconColorFilter/>} />
+
         <Select
           // default ~ 14rem
           w="8.5rem"
@@ -122,6 +126,7 @@ export default function App() {
           value={waveform}
           onChange={v => setWaveform(v as typeof waveforms[number])}
           />
+
         <ColorSchemeToggle />
       </Group>
       <div className="Fields" style={{gridTemplateColumns: 'auto '.repeat(cols)}}>
