@@ -6,19 +6,23 @@ import { ColorSchemeToggle } from './Mantine';
 import './App.css'
 
 const colors = [
-  // https://coolors.co/palette/ffadad-ffd6a5-fdffb6-caffbf-9bf6ff-a0c4ff-bdb2ff-ffc6ff-fffffc
-  ["ffadad", "ffd6a5", "fdffb6", "caffbf", "9bf6ff", "a0c4ff", "bdb2ff", "ffc6ff", "fffffc"],
-  // https://coolors.co/palette/eddcd2-fff1e6-fde2e4-fad2e1-c5dedd-dbe7e4-f0efeb-d6e2e9-bcd4e6-99c1de
+  // https://coolors.co/palettes/trending
+  ["001219", "005f73", "0a9396", "94d2bd", "e9d8a6", "ee9b00", "ca6702", "bb3e03", "ae2012", "9b2226"],
+  ["f94144", "f3722c", "f8961e", "f9844a", "f9c74f", "90be6d", "43aa8b", "4d908e", "577590", "277da1"],
+  ["ffadad", "ffd6a5", "fdffb6", "caffbf", "9bf6ff", "a0c4ff", "bdb2ff", "ffc6ff", "f1f1f1"],
+  ["fbf8cc", "fde4cf", "ffcfd2", "f1c0e8", "cfbaf0", "a3c4f3", "90dbf4", "8eecf5", "98f5e1", "b9fbc0"],
   ["eddcd2", "fff1e6", "fde2e4", "fad2e1", "c5dedd", "dbe7e4", "f0efeb", "d6e2e9", "bcd4e6", "99c1de"],
-  // https://coolors.co/palette/eae4e9-fff1e6-fde2e4-fad2e1-e2ece9-bee1e6-f0efeb-dfe7fd-cddafd
   ["eae4e9", "fff1e6", "fde2e4", "fad2e1", "e2ece9", "bee1e6", "f0efeb", "dfe7fd", "cddafd"],
+  ["03045e", "023e8a", "0077b6", "0096c7", "00b4d8", "48cae4", "90e0ef", "ade8f4", "caf0f8"],
+  ["b7094c", "a01a58", "892b64", "723c70", "5c4d7d", "455e89", "2e6f95", "1780a1", "0091ad"],
+  ["54478c", "2c699a", "048ba8", "0db39e", "16db93", "83e377", "b9e769", "efea5a", "f1c453", "f29e4c"],
 ];
 
 export default function App() {
   // config
   // color palette
-  const [colortheme, setColortheme] = useLocalStorage({ key: 'colortheme', defaultValue: 2 });
-  const color = (n: number) => '#' + colors[colortheme % colors.length][n - 1];
+  const [colortheme, setColortheme] = useLocalStorage({ key: 'colortheme', defaultValue: 3 });
+  const color = (n: number) => '#' + colors[(colortheme-1) % colors.length][n - 1];
   // sound
   const waveforms = ['none', 'sine', 'square', 'triangle', 'sawtooth'] as const;
   type waveform = typeof waveforms[number];
