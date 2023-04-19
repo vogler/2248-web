@@ -131,9 +131,11 @@ export default function App() {
     <div className="App">
       {/* <h1>2248</h1> */}
       <Group position="center" className="config">
-        <NumberInput w="4rem" min={2} value={cols} onChange={v => v && setCols(v)} />
-        x
-        <NumberInput w="4rem" min={2} value={rows} onChange={v => v && setRows(v)} />
+        <Group spacing={5}>
+          <NumberInput w="4rem" min={2} value={cols} onChange={v => v && setCols(v)} />
+          X
+          <NumberInput w="4rem" min={2} value={rows} onChange={v => v && setRows(v)} />
+        </Group>
 
         <NumberInput w="5rem" min={1} max={colors.length} value={colortheme} onChange={v => v && setColortheme(v)} icon={<IconColorFilter/>} />
 
