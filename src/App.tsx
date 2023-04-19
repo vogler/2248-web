@@ -41,7 +41,7 @@ export default function App() {
   ];
   const [rows, setRows] = useState(5);
   const [cols, setCols] = useState(5);
-  const m = useMemo(() => Array(rows).fill(Array(cols).fill(1)).map(row => row.map(rand)), [rows, cols]);
+  const m = useMemo(() => Array(rows).fill(Array(cols).fill(1)).map(row => row.map(rand)), [rows, cols]) as number[][];
 
   // state and lines between fields when drawing
   type field = { row: number, col: number, n: number };
@@ -109,6 +109,7 @@ export default function App() {
     const up = (e: MouseEvent) => {
       // console.log('up:', text);
       setLine(undefined);
+      setLines([]);
     };
     return <button className="Field" style={{ backgroundColor: color(o.n) }}
       onMouseDown={down} onMouseEnter={enter} onMouseMove={move} onMouseLeave={leave} onMouseUp={up} > {text} </button>;
