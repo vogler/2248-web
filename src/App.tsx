@@ -64,6 +64,21 @@ export default function App() {
   // already established lines between matching fields
   const [lines, setLines] = useState<line[]>([]);
   const addLine = (line: line) => setLines([...lines, line]);
+  const [fields, setFields] = useState<fieldc[]>([]);
+  const addField = (field: field) => {
+    setFields([...fields, field]);
+    setField(field);
+  };
+  const popField = () => {
+    const fr = fields.pop();
+    setFields(fields);
+    const l = lines.slice(-1)[0];
+    setLines(lines.slice(0, -1));
+    const f = fields.slice(-1)[0];
+    setField({...f, x: l.x1, y: l.y1});
+    // console.log(2**f.n, fields.map(x => 2**x.n));
+    return fr;
+  };
 
   const getCenter = (e: MouseEvent) => {
     const box = e.currentTarget.getBoundingClientRect();
@@ -71,10 +86,13 @@ export default function App() {
     const y = (box.top + box.bottom) / 2;
     return {x, y};
   }
+  const isSame = (a: fieldc, b: fieldc) =>
+    a.row == b.row && a.col == b.col
   const isNeighbor = (a: fieldc, b: fieldc) =>
-    !(a.row == b.row && a.col == b.col) &&
+    !isSame(a, b) &&
     Math.abs(a.row - b.row) <= 1 &&
     Math.abs(a.col - b.col) <= 1;
+  const hasField = (field: fieldc) => fields.some(f => isSame(f, field));
 
   // https://marcgg.com/blog/2016/11/01/javascript-audio/
   const playSound = (n: number) => {
@@ -93,19 +111,21 @@ export default function App() {
   const Field = (o: fieldc) => {
     const text = 2 ** o.n;
     const down = (e: MouseEvent) => {
-      console.log('down:', text);
-      setField({ ...o, ...getCenter(e) });
-      // setLine({ x1, y1, x2: e.clientX, y2: e.clientY, stroke: color(o.n) });
+      console.log('down:', text, o);
+      addField({ ...o, ...getCenter(e) });
     };
     const enter = (e: MouseEvent) => {
       if (!field) return;
-      console.log('enter:', text, lines.length);
-      if (isNeighbor(field, o) && (o.n == field.n || o.n == field.n + 1)) {
+      console.log('enter:', text, fields.map(x => 2 ** x.n), lines.length);
+      if (isNeighbor(field, o) && (o.n == field.n || o.n == field.n + 1) && !hasField(o)) {
         const p = getCenter(e);
         addLine(line(field, p));
-        console.log(line(field, p));
-        setField({ ...o, ...p });
+        addField({ ...o, ...p });
         playSound(o.n);
+        console.log('added:', text);
+      } else if (fields.length >= 2 && isSame(o, fields[fields.length-2])) {
+        const f = popField();
+        f && console.log('removed:', 2**f.n, 'at', text);
       }
     };
     const move = (e: MouseEvent) => {
@@ -118,14 +138,15 @@ export default function App() {
     };
     const up = (e: MouseEvent) => {
       // console.log('up:', text);
-      setField(undefined);
       setLines([]);
+      setField(undefined);
+      setFields([]);
     };
     return <button className="Field" style={{ backgroundColor: color(o.n) }}
       onMouseDown={down} onMouseEnter={enter} onMouseMove={move} onMouseLeave={leave} onMouseUp={up} > {text} </button>;
   };
 
-  const fields = m.flatMap((row, irow) => row.map((n, icol) => <Field row={irow} col={icol} n={n} />));
+  const Fields = m.flatMap((row, irow) => row.map((n, icol) => <Field row={irow} col={icol} n={n} />));
 
   return (
     <div className="App">
@@ -151,7 +172,7 @@ export default function App() {
         <ColorSchemeToggle />
       </Group>
       <div className="Fields" style={{gridTemplateColumns: 'auto '.repeat(cols)}}>
-        {fields}
+        {Fields}
       </div>
       <svg className="lines" width="100vw" height="100vh">
         {lines.map(o => <line {...o} />)}
