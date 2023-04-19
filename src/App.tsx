@@ -1,7 +1,7 @@
 import { Group, NumberInput, Select } from '@mantine/core';
 import { useLocalStorage } from '@mantine/hooks';
 import { IconColorFilter, IconVolume } from '@tabler/icons-react'; // https://tabler-icons-react.vercel.app/
-import { MouseEvent, useMemo, useState } from 'react';
+import { MouseEvent, useMemo, useRef, useState } from 'react';
 import { ColorSchemeToggle } from './Mantine';
 import './App.css'
 
@@ -44,11 +44,23 @@ export default function App() {
   const m = useMemo(() => Array(rows).fill(Array(cols).fill(1)).map(row => row.map(rand)), [rows, cols]) as number[][];
 
   // state and lines between fields when drawing
-  type field = { row: number, col: number, n: number };
+  type fieldc = { row: number, col: number, n: number }; // initial args for creating a field
+  type pos = { x: number, y: number };
+  type field = fieldc & pos; // add rendered position
   const [field, setField] = useState<field>();
   type line = { x1: number, y1: number, x2: number, y2: number; stroke: string };
-  // current line when moving mouse
-  const [line, setLine] = useState<line>();
+  // current line when moving mouse, useState would rerender!
+  const lineRef = useRef<SVGLineElement>(null);
+  const setLineRef = (p: line) => {
+    const l = lineRef.current;
+    if (!l) return;
+    l.x1.baseVal.value = p.x1;
+    l.y1.baseVal.value = p.y1;
+    l.x2.baseVal.value = p.x2;
+    l.y2.baseVal.value = p.y2;
+    l.style.stroke = p.stroke;
+  };
+  const line = (f: field, p: pos): line => ({ x1: f.x, y1: f.y, x2: p.x, y2: p.y, stroke: color(f.n) });
   // already established lines between matching fields
   const [lines, setLines] = useState<line[]>([]);
   const addLine = (line: line) => setLines([...lines, line]);
@@ -57,9 +69,9 @@ export default function App() {
     const box = e.currentTarget.getBoundingClientRect();
     const x = (box.left + box.right) / 2;
     const y = (box.top + box.bottom) / 2;
-    return [x, y];
+    return {x, y};
   }
-  const isNeighbor = (a: field, b: field) =>
+  const isNeighbor = (a: fieldc, b: fieldc) =>
     !(a.row == b.row && a.col == b.col) &&
     Math.abs(a.row - b.row) <= 1 &&
     Math.abs(a.col - b.col) <= 1;
@@ -78,37 +90,35 @@ export default function App() {
     g.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.4);
   };
 
-  const Field = (o: field) => {
+  const Field = (o: fieldc) => {
     const text = 2 ** o.n;
     const down = (e: MouseEvent) => {
       console.log('down:', text);
-      setField(o);
-      const [x1, y1] = getCenter(e);
-      setLine({ x1, y1, x2: e.clientX, y2: e.clientY, stroke: color(o.n) });
+      setField({ ...o, ...getCenter(e) });
+      // setLine({ x1, y1, x2: e.clientX, y2: e.clientY, stroke: color(o.n) });
     };
     const enter = (e: MouseEvent) => {
-      if (!field || !line) return;
+      if (!field) return;
       console.log('enter:', text, lines.length);
       if (isNeighbor(field, o) && (o.n == field.n || o.n == field.n + 1)) {
-        setField(o);
-        const [x, y] = getCenter(e);
-        addLine({ ...line, x2: x, y2: y });
-        console.log(line);
-        setLine({ ...line, x1: x, y1: y, stroke: color(o.n) });
+        const p = getCenter(e);
+        addLine(line(field, p));
+        console.log(line(field, p));
+        setField({ ...o, ...p });
         playSound(o.n);
       }
     };
     const move = (e: MouseEvent) => {
       // console.log('move:', e.clientX);
-      // this will rerender and call enter with every move...
-      // if (line) setLine({...line, x2: e.clientX, y2: e.clientY});
+      // note that using useState would rerender and execute the enter above with every move...
+      if (field) setLineRef(line(field, { x: e.clientX, y: e.clientY }));
     };
     const leave = (e: MouseEvent) => {
       // console.log('leave:', text);
     };
     const up = (e: MouseEvent) => {
       // console.log('up:', text);
-      setLine(undefined);
+      setField(undefined);
       setLines([]);
     };
     return <button className="Field" style={{ backgroundColor: color(o.n) }}
@@ -143,7 +153,7 @@ export default function App() {
       </div>
       <svg className="lines" width="100vw" height="100vh">
         {lines.map(o => <line {...o} />)}
-        {/* {line && <line {...line} /> } */}
+        {field && <line ref={lineRef} />}
       </svg>
     </div>
   )
