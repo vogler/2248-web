@@ -112,6 +112,7 @@ export default function App() {
     const text = 2 ** o.n;
     const down = (e: MouseEvent) => {
       console.log('down:', text, o);
+      if (field) return;
       addField({ ...o, ...getCenter(e) });
     };
     const enter = (e: MouseEvent) => {
@@ -128,25 +129,23 @@ export default function App() {
         f && console.log('removed:', 2**f.n, 'at', text);
       }
     };
-    const move = (e: MouseEvent) => {
-      // console.log('move:', e.clientX);
-      // note that using useState would rerender and execute the enter above with every move...
-      if (field) setLineRef(line(field, { x: e.clientX, y: e.clientY }));
-    };
-    const leave = (e: MouseEvent) => {
-      // console.log('leave:', text);
-    };
-    const up = (e: MouseEvent) => {
-      // console.log('up:', text);
-      setLines([]);
-      setField(undefined);
-      setFields([]);
-    };
     return <button className="Field" style={{ backgroundColor: color(o.n) }}
-      onMouseDown={down} onMouseEnter={enter} onMouseMove={move} onMouseLeave={leave} onMouseUp={up} > {text} </button>;
+      onMouseDown={down} onMouseEnter={enter}> {text} </button>;
   };
 
   const Fields = m.flatMap((row, irow) => row.map((n, icol) => <Field row={irow} col={icol} n={n} />));
+
+  const move = (e: MouseEvent) => {
+    // console.log('move:', e.clientX);
+    // note that using useState would rerender and execute the enter above with every move...
+    if (field) setLineRef(line(field, { x: e.clientX, y: e.clientY }));
+  };
+  const up = (e: MouseEvent) => {
+    // console.log('up:', text);
+    setLines([]);
+    setField(undefined);
+    setFields([]);
+  };
 
   return (
     <div className="App">
@@ -171,7 +170,7 @@ export default function App() {
 
         <ColorSchemeToggle />
       </Group>
-      <div className="Fields" style={{gridTemplateColumns: 'auto '.repeat(cols)}}>
+      <div className="Fields" style={{gridTemplateColumns: 'auto '.repeat(cols)}} onMouseMove={move} onMouseUp={up}>
         {Fields}
       </div>
       <svg className="lines" width="100vw" height="100vh">
