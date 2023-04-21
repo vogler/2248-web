@@ -44,6 +44,15 @@ body {
   /* will-change: filter; */
   /* transition: filter 300ms; */
 }
+.current {
+  filter: drop-shadow(0 0 1em #4375c6aa);
+  /* animation: shake 0.3s linear 2; */
+}
+.selected {
+  /* border: 1px solid red; */
+  /* filter: drop-shadow(0 0 1em #4375c6aa); */
+  animation: shake 0.3s linear 2;
+}
 
 @keyframes shake {
     0% { transform: rotate(0deg); }
@@ -57,6 +66,13 @@ body {
   border-color: #4375c6aa;
   /* filter: drop-shadow(0 0 1em #4375c6aa); */
   /* animation: shake 0.3s linear 2; */
+}
+
+.stats {
+  color: gray;
+}
+.stat {
+  font-weight: bold;
 }
 
 .lines {

@@ -1,8 +1,9 @@
-import { Group, NumberInput, Select } from '@mantine/core';
+import { Divider, Group, NumberInput, Select } from '@mantine/core';
 import { useLocalStorage } from '@mantine/hooks';
 import { IconColorFilter, IconVolume } from '@tabler/icons-react'; // https://tabler-icons-react.vercel.app/
-import { MouseEvent, useMemo, useRef, useState } from 'react';
+import { MouseEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { ColorSchemeToggle } from './Mantine';
+import { duration } from './util';
 import './App.css'
 
 const colors = [
@@ -32,16 +33,21 @@ export default function App() {
   const max = 9;
   const rand = () => min + Math.floor(Math.random() * max);
   // matrix of initial field values
-  const md = [
-    [1, 1, 2, 10],
-    [3, 2, 1, 1],
-    [4, 5, 6, 7],
-    [4, 2, 2, 8],
-    [1, 1, 2, 9],
-  ];
-  const [rows, setRows] = useState(5);
+  // const m = [
+  //   [1, 1, 2, 10],
+  //   [3, 2, 1, 1],
+  //   [4, 5, 6, 7],
+  //   [4, 2, 2, 8],
+  //   [1, 1, 2, 9],
+  // ];
+  // The natural choice would be to have an array for each row such that the string representation of the 2d array matches what is displayed.
+  // Since fields should fall down into the places of cleared fields, it's nicer to have columns of values which we can then easily fill up again.
+  // So, for the above, m[0] would be the first column of values downwards (i.e. prepend to fill up).
+  // Later, we transpose the matrix before displaying the fields row by row.
   const [cols, setCols] = useState(5);
-  const m = useMemo(() => Array(rows).fill(Array(cols).fill(1)).map(row => row.map(rand)), [rows, cols]) as number[][];
+  const [rows, setRows] = useState(5);
+  let initialMatrix = useMemo(() => Array(cols).fill(Array(rows).fill(1)).map(col => col.map(rand)), [rows, cols]) as number[][];
+  const [matrix, setMatrix] = useState(initialMatrix);
 
   // state and lines between fields when drawing
   type fieldc = { row: number, col: number, n: number }; // initial args for creating a field
@@ -87,7 +93,7 @@ export default function App() {
     return {x, y};
   }
   const isSame = (a: fieldc, b: fieldc) =>
-    a.row == b.row && a.col == b.col
+    a.row == b.row && a.col == b.col;
   const isNeighbor = (a: fieldc, b: fieldc) =>
     !isSame(a, b) &&
     Math.abs(a.row - b.row) <= 1 &&
@@ -129,21 +135,41 @@ export default function App() {
         f && console.log('removed:', 2**f.n, 'at', text);
       }
     };
-    return <button className="Field" style={{ backgroundColor: color(o.n) }}
+    const isCurrent = field && isSame(field, o);
+    const isSelected = hasField(o);
+    const classNames = ['Field', isCurrent && 'current', isSelected && 'selected'].filter(x => !!x).join(' ');
+    return <button className={classNames} style={{ backgroundColor: color(o.n) }}
       onMouseDown={down} onMouseEnter={enter}> {text} </button>;
   };
 
-  const Fields = m.flatMap((row, irow) => row.map((n, icol) => <Field row={irow} col={icol} n={n} />));
+  useEffect(() => console.log(matrix), [matrix]);
+  // need to transpose matrix for display to match columns of values instead of rows of values
+  const transpose = (m: number[][]) => m[0].map((_, i) => m.map(x => x[i]));
+  const Fields = transpose(matrix).flatMap((row, irow) => row.map((n, icol) => <Field row={irow} col={icol} n={n} />));
 
   const move = (e: MouseEvent) => {
     // console.log('move:', e.clientX);
     // note that using useState would rerender and execute the enter above with every move...
     if (field) setLineRef(line(field, { x: e.clientX, y: e.clientY }));
   };
+  const [stats, setStats] = useState({fields: 0, points: 0, start: Date.now()});
   const up = (e: MouseEvent) => {
-    // console.log('up:', text);
+    console.log('up:', fields);
     setLines([]);
     setField(undefined);
+    if (fields.length < 2) return;
+    for (const f of fields.slice(0, -1)) { // delete all but last field
+      delete matrix[f.col][f.row]; // shouldn't mutate, but doesn't matter here
+    }
+    // last field gets the sum of all values
+    const l = fields.slice(-1)[0];
+    const points = matrix[l.col][l.row] = Math.round(Math.log2(fields.reduce((a, f) => a + 2**f.n, 0))); // round or floor?
+    setMatrix(matrix.map(c => {
+      const r = c.filter(n => n != undefined); // have to remove deleted values which are just undefined
+      return Array(rows-r.length).fill(0).map(rand).concat(r); // prepend new random values in column
+    }));
+    // console.log(matrix);
+    setStats({...stats, fields: stats.fields + fields.length, points: stats.points + points});
     setFields([]);
   };
 
@@ -170,9 +196,19 @@ export default function App() {
 
         <ColorSchemeToggle />
       </Group>
+
       <div className="Fields" style={{gridTemplateColumns: 'auto '.repeat(cols)}} onMouseMove={move} onMouseUp={up}>
         {Fields}
       </div>
+
+      <Group position="center" className="stats">
+        Duration: <span className='stat'>{duration(Date.now() - stats.start)}</span>
+        <Divider orientation="vertical" />
+        Cleared fields: <span className='stat'>{stats.fields}</span>
+        <Divider orientation="vertical" />
+        Points: <span className='stat'>{stats.points}</span>
+      </Group>
+
       <svg className="lines" width="100vw" height="100vh">
         {lines.map(o => <line {...o} />)}
         {field && <line ref={lineRef} />}
