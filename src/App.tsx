@@ -76,15 +76,18 @@ export default function App() {
     setField(field);
   };
   const popField = () => {
-    const fr = fields.pop();
-    setFields(fields);
+    const fr = fields.slice(-1)[0];
+    const f = fields.slice(-2)[0];
+    setFields(fields.slice(0, -1));
     const l = lines.slice(-1)[0];
     setLines(lines.slice(0, -1));
-    const f = fields.slice(-1)[0];
     setField({...f, x: l.x1, y: l.y1});
     // console.log(2**f.n, fields.map(x => 2**x.n));
     return fr;
   };
+  const calcN = () => Math.round(Math.log2(fields.reduce((a, f) => a + 2 ** f.n, 0))); // round or floor?
+  const [curN, setCurN] = useState<number>();
+  useEffect(() => setCurN(fields.length ? calcN() : undefined), [fields]);
 
   const getCenter = (e: MouseEvent) => {
     const box = e.currentTarget.getBoundingClientRect();
@@ -169,7 +172,7 @@ export default function App() {
     }
     // last field gets the sum of all values
     const l = fields.slice(-1)[0];
-    const points = matrix[l.col][l.row] = Math.round(Math.log2(fields.reduce((a, f) => a + 2**f.n, 0))); // round or floor?
+    const points = matrix[l.col][l.row] = calcN();
     setMatrix(matrix.map(c => {
       const r = c.filter(n => n != undefined); // have to remove deleted values which are just undefined
       return Array(rows-r.length).fill(0).map(rand).concat(r); // prepend new random values in column
@@ -177,6 +180,7 @@ export default function App() {
     // console.log(matrix);
     setStats({...stats, fields: stats.fields + fields.length, points: stats.points + points});
     setFields([]);
+    setCurN(undefined);
   };
 
   return (
@@ -208,11 +212,15 @@ export default function App() {
       </div>
 
       <Group position="center" className="stats">
-        Duration: <span className='stat'>{duration(Date.now() - stats.start)}</span>
-        <Divider orientation="vertical" />
-        Cleared fields: <span className='stat'>{stats.fields}</span>
-        <Divider orientation="vertical" />
-        Points: <span className='stat'>{stats.points}</span>
+        {curN ? <>Result: <span className='stat'>{2**curN}</span></> :
+        <>
+          Duration: <span className='stat'>{duration(Date.now() - stats.start)}</span>
+          <Divider orientation="vertical" />
+          Cleared fields: <span className='stat'>{stats.fields}</span>
+          <Divider orientation="vertical" />
+          Points: <span className='stat'>{stats.points}</span>
+        </>
+        }
       </Group>
 
       <svg className="lines" width="100vw" height="100vh">
