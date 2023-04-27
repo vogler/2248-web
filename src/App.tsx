@@ -138,7 +138,13 @@ export default function App() {
     const isCurrent = field && isSame(field, o);
     const isSelected = hasField(o);
     const classNames = ['Field', isCurrent && 'current', isSelected && 'selected'].filter(x => !!x).join(' ');
-    return <button className={classNames} style={{ backgroundColor: color(o.n) }}
+    let fontSize;
+    const zoomText = true;
+    if (zoomText) {
+      const tl = text.toString().length;
+      fontSize = tl == 1 ? '5rem' : tl == 2 ? '4rem' : '3rem';
+    }
+    return <button className={classNames} style={{ backgroundColor: color(o.n), fontSize }}
       onMouseDown={down} onMouseEnter={enter}> {text} </button>;
   };
 
